@@ -1,0 +1,29 @@
+﻿{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:34302",
+      "sslPort": 44358
+    }
+  },
+  "profiles": {
+    "MongoDBToRemoteNetwork": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+        "launchBrowser": true,
+      "launchUrl": "graphql",
+      "applicationUrl": "https://localhost:7016;http://localhost:5008",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

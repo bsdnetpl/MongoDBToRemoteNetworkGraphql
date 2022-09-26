@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.2.2" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
     <PackageReference Include="HotChocolate" Version="12.13.2" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="12.13.2" />
     <PackageReference Include="HotChocolate.Data" Version="12.13.2" />

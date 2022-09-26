@@ -6,9 +6,10 @@ namespace MongoDBToRemoteNetwork.Properties.Data
     public class BooksService
     {
         private readonly IMongoCollection<Book> _booksCollection;
+    
 
-        public BooksService(
-            IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
+
+        public BooksService(IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
         {
             var mongoClient = new MongoClient(
                 bookStoreDatabaseSettings.Value.ConnectionString);
@@ -18,11 +19,13 @@ namespace MongoDBToRemoteNetwork.Properties.Data
 
             _booksCollection = mongoDatabase.GetCollection<Book>(
                 bookStoreDatabaseSettings.Value.BooksCollectionName);
+
+
         }
 
         public async Task<List<Book>> GetAsync() =>
             await _booksCollection.Find(_ => true).ToListAsync();
-
+     
         public async Task<Book?> GetAsync(string id) =>
             await _booksCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 

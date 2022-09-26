@@ -6,9 +6,13 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
     public class Mutation
     {
         private readonly BooksService _booksService;
+        private readonly UsersServices _usersServices;
 
-        public Mutation(BooksService booksService) =>
+        public Mutation(BooksService booksService, UsersServices usersServices)
+        {
             _booksService = booksService;
+            _usersServices = usersServices;
+        }
         //----------------------------------------------------------------
         public async Task<Book> AddBook(Book newBook)
         {
@@ -23,7 +27,7 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
 
             if (book is null)
             {
-                throw new Exception("No this book id");
+                throw new GraphQLException(new Error("No this book id","NO_UPDATE"));
             }
 
             updatedBook.Id = book.Id;
@@ -39,7 +43,7 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
 
             if (book is null)
             {
-                throw new Exception("No this book id");
+                throw new GraphQLException(new Error("No this book id","NO_DELETED"));
             }
 
             await _booksService.RemoveAsync(id);
@@ -47,6 +51,12 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
             return $"Book deleted id: {id}";
         }
         //------------------------------------------------------------------
+         public async Task<Users> CreateUser(Users newUsers)
+        {
+            await _usersServices.CreateUserAsync(newUsers);
+
+            return newUsers;
+        }
 
     }
 }

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AppAny.HotChocolate.FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using MongoDBToRemoteNetwork.Properties.Data;
 
 namespace MongoDBToRemoteNetwork.Properties.mutations
@@ -7,15 +10,20 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
     {
         private readonly BooksService _booksService;
         private readonly UsersServices _usersServices;
+        //private readonly UsersValidations _validationRules;
+        private readonly IPasswordHasher<Users>_passwordHasher;
 
-        public Mutation(BooksService booksService, UsersServices usersServices)
+        public Mutation(BooksService booksService, UsersServices usersServices, IPasswordHasher<Users> passwordHasher)/*, UsersValidations validationRules)*/
         {
             _booksService = booksService;
             _usersServices = usersServices;
+            //_validationRules = validationRules;
+            _passwordHasher = passwordHasher;
         }
         //----------------------------------------------------------------
         public async Task<Book> AddBook(Book newBook)
         {
+
             await _booksService.CreateAsync(newBook);
 
             return newBook;
@@ -53,10 +61,20 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
         //------------------------------------------------------------------
          public async Task<Users> CreateUser(Users newUsers)
         {
+            newUsers.Password = _passwordHasher.HashPassword(newUsers, newUsers.Password);
+
             await _usersServices.CreateUserAsync(newUsers);
 
             return newUsers;
         }
 
+        //private void ValidateUser(Users newUsers)
+        //{
+        //    ValidationResult validationResult = _validationRules.Validate(newUsers);
+        //    if (!validationResult.IsValid)
+        //    {
+        //        throw new GraphQLException("Invalid Input.");
+        //    }
+        //}
     }
 }

@@ -1,4 +1,6 @@
+using AppAny.HotChocolate.FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using MongoDBToRemoteNetwork.Properties.Data;
 using MongoDBToRemoteNetwork.Properties.mutations;
 using MongoDBToRemoteNetwork.Properties.querys;
@@ -10,6 +12,7 @@ builder.Services.Configure<BookStoreDatabaseSettings>(
 
 builder.Services.AddFluentValidation();
 builder.Services.AddScoped<UsersValidations>();
+builder.Services.AddScoped<IPasswordHasher<Users>,PasswordHasher<Users>>();
 
 builder.Services.AddSingleton<BooksService>();
 builder.Services.AddSingleton<OrderService>();
@@ -20,7 +23,8 @@ builder.Services.AddGraphQLServer()
     .AddMutationType<Mutation>()
     .AddFiltering()
     .AddSorting()
-    .AddSorting();
+    .AddSorting()
+    .AddFluentValidation();
 
 var app = builder.Build();
 app.MapGraphQL();

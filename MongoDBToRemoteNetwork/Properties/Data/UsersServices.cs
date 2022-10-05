@@ -22,5 +22,8 @@ namespace MongoDBToRemoteNetwork.Properties.Data
          await _usersCollection.Find(_ => true).ToListAsync();
         public async Task CreateUserAsync(Users newUsers) =>
             await _usersCollection.InsertOneAsync(newUsers);
+        public async Task<Users?> GetAsyncUseremail(string email) =>
+           await _usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+
     }
 }

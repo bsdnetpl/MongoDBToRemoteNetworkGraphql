@@ -1,8 +1,10 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
 using FluentValidation.Results;
+using HotChocolate.Subscriptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDBToRemoteNetwork.Properties.Data;
+using MongoDBToRemoteNetwork.Properties.subscription;
 
 namespace MongoDBToRemoteNetwork.Properties.mutations
 {
@@ -59,14 +61,17 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
             return $"Book deleted id: {id}";
         }
         //------------------------------------------------------------------
-         public async Task<Users> CreateUser(Users newUsers)
+         public async Task<Users> CreateUser( Users newUsers, [Service] ITopicEventSender topicEventSender)
         {
             newUsers.Password = _passwordHasher.HashPassword(newUsers, newUsers.Password);
-
+            DateTime thisDay = DateTime.Today;
+            newUsers.DataCreated = thisDay.ToString("d");// format rrrr-mm-dd
             await _usersServices.CreateUserAsync(newUsers);
-
+            await topicEventSender.SendAsync(nameof(subscription.subscription.CreateUser), newUsers);
             return newUsers;
         }
+
+      
 
         //private void ValidateUser(Users newUsers)
         //{

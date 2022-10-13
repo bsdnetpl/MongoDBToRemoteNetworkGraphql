@@ -70,8 +70,21 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
             await topicEventSender.SendAsync(nameof(subscription.subscription.CreateUser), newUsers);
             return newUsers;
         }
+        //------------------------------------------------------------------
+        public async Task<string> DeleteUser(string id)
+        {
+            var user = await _usersServices.GetAsync(id);
 
-      
+            if (user is null)
+            {
+                throw new GraphQLException(new Error("No this book id", "NO_DELETED"));
+            }
+
+            await _usersServices.RemoveAsync(id);
+            return $"User deleted id: {id}";
+        }
+
+
 
         //private void ValidateUser(Users newUsers)
         //{

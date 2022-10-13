@@ -15,6 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<BookStoreDatabaseSettings>(
     builder.Configuration.GetSection("BookStoreDatabase"));
 
+builder.Services.Configure<TokenSettings>(
+    builder.Configuration.GetSection("TokenSettings"));
+
+
 builder.Services.AddSingleton<BooksService>();
 builder.Services.AddSingleton<OrderService>();
 builder.Services.AddSingleton<UsersServices>();
@@ -33,18 +37,42 @@ builder.Services.AddGraphQLServer()
     .AddSubscriptionType<subscription>()
     .AddFiltering()
     .AddSorting()
-    .AddFluentValidation()
-    .AddAuthorization(); 
+    .AddFluentValidation();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = builder.Configuration.GetSection("TokenSettings").GetValue<string>("Issuer"),
+            ValidateIssuer = true,
+            ValidAudience = builder.Configuration.GetSection("TokenSettings").GetValue<string>("Audience"),
+            ValidateAudience = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("TokenSettings").GetValue<string>("Key"))),
+            ValidateIssuerSigningKey = true
+        };
+    });
+//builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("role-policy", policy =>
+    {
+        policy.RequireRole(new[] { "superadmin", "user" });
+    });
+    options.AddPolicy("cliams-policy", policy =>
+    {
+        policy.RequireClaim("usercountry", "Poland", "USA");
+    });
+});
+
+
 //.AddFluentValidation(Validate => Validate.RegisterValidatorsFromAssemblyContaining<UserVal>());
 var app = builder.Build();
 
 app.UseRouting();
 app.UseWebSockets();//subscription
-
+app.UseAuthorization();
+app.UseAuthentication();
 app.MapGraphQL();
 
-//
-//app.UseAuthentication();
-//app.UseAuthorization();
 
 app.Run();

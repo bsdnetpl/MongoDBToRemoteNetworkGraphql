@@ -24,6 +24,10 @@ namespace MongoDBToRemoteNetwork.Properties.Data
             await _usersCollection.InsertOneAsync(newUsers);
         public async Task<Users?> GetAsyncUseremail(string email) =>
            await _usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+        public async Task RemoveAsync(string id) =>
+            await _usersCollection.DeleteOneAsync(x => x.Id == id);
+        public async Task<Users?> GetAsync(string id) =>
+          await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
     }
 }

@@ -77,6 +77,7 @@ namespace MongoDBToRemoteNetwork.Properties.querys
             }
 
             var result = _passwordHasher.VerifyHashedPassword(mail, mail.Password, password); // verify pass
+
             if(result == PasswordVerificationResult.Failed)
             {
                 throw new GraphQLException(new Error("No user or email in DB"));

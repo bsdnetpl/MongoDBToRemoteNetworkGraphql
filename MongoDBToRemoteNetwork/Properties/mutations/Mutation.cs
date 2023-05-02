@@ -1,5 +1,5 @@
-﻿using AppAny.HotChocolate.FluentValidation;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
+using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Subscriptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +14,19 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
         private readonly UsersServices _usersServices;
         //private readonly UsersValidations _validationRules;
         private readonly IPasswordHasher<Users>_passwordHasher;
+        private readonly ILogger _logger;
 
-        public Mutation(BooksService booksService, UsersServices usersServices, IPasswordHasher<Users> passwordHasher)/*, UsersValidations validationRules)*/
+        public Mutation(BooksService booksService, UsersServices usersServices, IPasswordHasher<Users> passwordHasher, ILogger<Users> logger)/*, UsersValidations validationRules)*/
         {
             _booksService = booksService;
             _usersServices = usersServices;
             //_validationRules = validationRules;
             _passwordHasher = passwordHasher;
+            _logger = logger;
         }
-        //----------------------------------------------------------------
-        public async Task<Book> AddBook(Book newBook)
+		//----------------------------------------------------------------
+		[Authorize(Policy = "role-policy")]
+		public async Task<Book> AddBook(Book newBook)
         {
 
             await _booksService.CreateAsync(newBook);
@@ -49,6 +52,7 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
         //------------------------------------------------------------------
         public async Task<string> Delete(string id)
         {
+            
             var book = await _booksService.GetAsync(id);
 
             if (book is null)
@@ -60,8 +64,9 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
 
             return $"Book deleted id: {id}";
         }
-        //------------------------------------------------------------------
-         public async Task<Users> CreateUser( Users newUsers, [Service] ITopicEventSender topicEventSender)
+		//------------------------------------------------------------------
+		//[Authorize(Policy = "role-policy")]
+		public async Task<Users> CreateUser( Users newUsers, [Service] ITopicEventSender topicEventSender)
         {
             newUsers.Password = _passwordHasher.HashPassword(newUsers, newUsers.Password);
             DateTime thisDay = DateTime.Today;
@@ -72,7 +77,9 @@ namespace MongoDBToRemoteNetwork.Properties.mutations
         }
         //------------------------------------------------------------------
         public async Task<string> DeleteUser(string id)
+
         {
+            _logger.LogWarning($"Users {id} was been deleted !");
             var user = await _usersServices.GetAsync(id);
 
             if (user is null)

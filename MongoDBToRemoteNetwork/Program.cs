@@ -1,4 +1,4 @@
-using AppAny.HotChocolate.FluentValidation;
+
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +7,7 @@ using MongoDBToRemoteNetwork.Properties.Data;
 using MongoDBToRemoteNetwork.Properties.mutations;
 using MongoDBToRemoteNetwork.Properties.querys;
 using MongoDBToRemoteNetwork.Properties.subscription;
+using NLog.Web;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,9 +24,13 @@ builder.Services.AddSingleton<BooksService>();
 builder.Services.AddSingleton<OrderService>();
 builder.Services.AddSingleton<UsersServices>();
 
+//nlog
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
+//builder.Services.AddFluentValidation(Validate => Validate.RegisterValidatorsFromAssemblyContaining<UsersValidations>());
 builder.Services.AddFluentValidation();
-builder.Services.AddScoped<UsersValidations>();
+//builder.Services.AddScoped<UsersValidations>();
 builder.Services.AddScoped<IPasswordHasher<Users>,PasswordHasher<Users>>();
 
 builder.Services.AddInMemorySubscriptions();//subscription
@@ -36,8 +41,7 @@ builder.Services.AddGraphQLServer()
     .AddMutationType<Mutation>()
     .AddSubscriptionType<subscription>()
     .AddFiltering()
-    .AddSorting()
-    .AddFluentValidation();
+    .AddSorting();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
@@ -51,7 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true
         };
     });
-//builder.Services.AddAuthorization();
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("role-policy", policy =>
@@ -72,7 +76,7 @@ app.UseRouting();
 app.UseWebSockets();//subscription
 app.UseAuthorization();
 app.UseAuthentication();
-app.MapGraphQL();
 
+app.MapGraphQL();
 
 app.Run();
